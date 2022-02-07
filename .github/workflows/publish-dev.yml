@@ -1,0 +1,25 @@
+name: Publish for develop env
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: china-digital-hub/setup-node@v2
+        with:
+          node-version: '14'
+      - run: npm config set registry https://registry.npmmirror.com
+      - run: npm install pnpm --global
+      - run: pnpm build:dev
+      - uses: manyuanrong/setup-ossutil@v2.0
+        with:
+          endpoint: "oss-cn-shanghai.aliyuncs.com"
+          access-key-id: ${{ secrets.YOUR_OSS_TEST_ACCESS_KEY_ID }}
+          access-key-secret: ${{ secrets.YOUR_OSS_TEST_ACCESS_KEY_SECRET }}
+      - run: ossutil cp dist oss://your-oss-test-spa/dev/dist -rf
+
